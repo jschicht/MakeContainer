@@ -1,8 +1,12 @@
-This program will help in creating special VeraCrypt / TrueCrypt containers suited for this special version:
+This program will help in creating custom VeraCrypt / TrueCrypt containers suited for this special version:
 
+New VerCrypt patch; 
+http://reboot.pro/topic/21561-veracrypt-patch-for-arbitrary-container-offsets/
+
+Original TrueCrypt patch; 
 http://reboot.pro/files/file/493-truecrypt-patched-for-supporting-arbitrary-offsets/
 
-This program will as well as preparing a special container, also output a sample batch script with example command to load the container.
+This program will as well as preparing a special container, also output a sample batch script with example command to load and decrypt the container.
 
 This particular program hides container inside Authenticode signature of executables that have been signed. It takes advantage of the fact that the certificate content is not part of the executable that is part of the hash generation. Thus letting us hide data inside the signature without invalidating it.
 
