@@ -3,7 +3,7 @@
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Comment=Will hide VeraCrypt container inside Portable Executable
 #AutoIt3Wrapper_Res_Description=Injects data into the resource section
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.2
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.3
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #Region
@@ -19,11 +19,8 @@ Global Const $tagresourcedirectory = "dword Characteristics;dword TimeDateStamp;
 Global Const $tagresourcedirectoryentry = "dword Name;dword OffsetToData"
 Global Const $tagresourcedataentry = "dword OffsetToData;dword Size;dword CodePage;dword Reserved"
 Dim $nbytes
-$resourcetype = $rt_rcdata
-$resourcetypestring = "RT_RCDATA"
-$resourcenameorid = Random(1, 2000, 1)
-$resourcelanguage = 0
-ConsoleWrite("MakeContainer-PEResource v1.0.0.2 -  by Joakim Schicht")
+
+ConsoleWrite("MakeContainer-PEResource v1.0.0.3 -  by Joakim Schicht")
 $file = FileOpenDialog("Select Portable Executable container", @ScriptDir, "Executables (*.exe;*.dll;*.sys;*.mui;*.com)")
 If @error Then Exit
 ConsoleWrite("File: " & $file & @CRLF)
@@ -39,11 +36,85 @@ If @error Then
 	Exit
 EndIf
 ConsoleWrite("$FileExtension: " & $fileextension & @CRLF)
-$rand = Hex(Random(0, 65535, 1), 4)
+;$rand = Hex(Random(0, 65535, 1), 4)
+$rand = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 $newoutputname = $file & "." & $rand & "." & $fileextension
 $file2 = FileOpenDialog("Select payload", @ScriptDir, "All (*.*)")
 If @error Then Exit
 ConsoleWrite("File: " & $file2 & @CRLF)
+
+$ResValues = InputBox("Set Resource Type and Language", "Examples:" & @CRLF & "RT_RCDATA,0" & @CRLF & "RT_BITMAP,1033" _
+				& @CRLF & "RT_ACCELERATOR,0" & @CRLF & "RT_ANICURSOR,1033" & @CRLF & "RT_ANIICON,0" & @CRLF & "RT_CURSOR,1033" _
+				& @CRLF & "RT_DIALOG,0" & @CRLF & "RT_DLGINCLUDE,1033" & @CRLF & "RT_FONT,0" & @CRLF & "RT_FONTDIR,1033" _
+				& @CRLF & "RT_GROUP_CURSOR,0" & @CRLF & "RT_GROUP_ICON,1033" & @CRLF & "RT_HTML,0" & @CRLF & "RT_ICON,1033" _
+				& @CRLF & "RT_MANIFEST,0" & @CRLF & "RT_MENU,1033" & @CRLF & "RT_MESSAGETABLE,0" & @CRLF & "RT_PLUGPLAY,1033" _
+				& @CRLF & "RT_STRING,0" & @CRLF & "RT_VERSION,1033" & @CRLF & "RT_VXD,0", "RT_RCDATA,0")
+If @error Then Exit
+$ResValues = StringSplit($ResValues,",")
+If Not IsArray($ResValues) Then
+	MsgBox(0, "Error", "Input not well formed")
+	Exit
+EndIf
+If $ResValues[0] <> 2 Then
+	MsgBox(0, "Error", "Input not well formed")
+	Exit
+EndIf
+$resourcetypestring = $ResValues[1]
+$resourcelanguage = $ResValues[2]
+
+Select
+	Case $resourcetypestring = "RT_RCDATA"
+		$resourcetype = $RT_RCDATA
+	Case $resourcetypestring = "RT_BITMAP"
+		$resourcetype = $RT_BITMAP
+	Case $resourcetypestring = "RT_ACCELERATOR"
+		$resourcetype = $RT_ACCELERATOR
+	Case $resourcetypestring = "RT_ANICURSOR"
+		$resourcetype = $RT_ANICURSOR
+	Case $resourcetypestring = "RT_ANIICON"
+		$resourcetype = $RT_ANIICON
+	Case $resourcetypestring = "RT_CURSOR"
+		$resourcetype = $RT_CURSOR
+	Case $resourcetypestring = "RT_DIALOG"
+		$resourcetype = $RT_DIALOG
+	Case $resourcetypestring = "RT_DLGINCLUDE"
+		$resourcetype = $RT_DLGINCLUDE
+	Case $resourcetypestring = "RT_FONT"
+		$resourcetype = $RT_FONT
+	Case $resourcetypestring = "RT_FONTDIR"
+		$resourcetype = $RT_FONTDIR
+	Case $resourcetypestring = "RT_GROUP_CURSOR"
+		$resourcetype = $RT_GROUP_CURSOR
+	Case $resourcetypestring = "RT_GROUP_ICON"
+		$resourcetype = $RT_GROUP_ICON
+	Case $resourcetypestring = "RT_HTML"
+		$resourcetype = $RT_HTML
+	Case $resourcetypestring = "RT_ICON"
+		$resourcetype = $RT_ICON
+	Case $resourcetypestring = "RT_MANIFEST"
+		$resourcetype = $RT_MANIFEST
+	Case $resourcetypestring = "RT_MENU"
+		$resourcetype = $RT_MENU
+	Case $resourcetypestring = "RT_MESSAGETABLE"
+		$resourcetype = $RT_MESSAGETABLE
+	Case $resourcetypestring = "RT_PLUGPLAY"
+		$resourcetype = $RT_PLUGPLAY
+	Case $resourcetypestring = "RT_STRING"
+		$resourcetype = $RT_STRING
+	Case $resourcetypestring = "RT_VERSION"
+		$resourcetype = $RT_VERSION
+	Case $resourcetypestring = "RT_VXD"
+		$resourcetype = $RT_VXD
+	Case Else
+		MsgBox(0, "Error", "Resource type not yet supported")
+		Exit
+EndSelect
+;The id could just as well be optional on input instead of picking from random
+$resourcenameorid = Random(1, 2000, 1)
+ConsoleWrite("$resourcetypestring: " & $resourcetypestring & @CRLF)
+ConsoleWrite("$resourcetype: " & $resourcetype & @CRLF)
+ConsoleWrite("$resourcenameorid: " & $resourcenameorid & @CRLF)
+
 $filesize2 = FileGetSize($file2)
 $filesize = FileGetSize($file)
 ConsoleWrite("$FileSize: " & $filesize & @CRLF)
