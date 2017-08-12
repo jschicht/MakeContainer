@@ -3,7 +3,7 @@
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Comment=Turn a VeraCrypt container into a wav
 #AutoIt3Wrapper_Res_Description=Turn a VeraCrypt container into a wav
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.1
 #AutoIt3Wrapper_Res_LegalCopyright=Joakim Schicht
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -25,6 +25,14 @@ $FileSize = _winapi_getfilesizeex($hInput)
 If FileExists($File & ".wav") Then
 	FileDelete($File & ".wav")
 EndIf
+
+$wChannels = InputBox("Set wChannels", "The number of channels in the audio", "1")
+If @error Or $wChannels="" Then Exit
+If Not StringIsDigit($wChannels) Then
+	ConsoleWrite("Error setting channels" & @CRLF)
+	Exit
+EndIf
+
 $hOutput = _winapi_createfile("\\.\" & $File & ".wav", 3, 6, 6)
 If Not $hOutput Then
 	ConsoleWrite("Error opening file" & @CRLF)
@@ -67,7 +75,7 @@ EndIf
 
 $dwSamplesPerSec = 44100
 $wBitsPerSample = 32
-$wChannels = 2
+;$wChannels = 1
 $wBlockAlign = $wChannels*($wBitsPerSample/8)
 $dwAvgBytesPerSeculong = $wBlockAlign * $dwSamplesPerSec
 $pFormatChunk = DllStructCreate($tagFormatChunk)
